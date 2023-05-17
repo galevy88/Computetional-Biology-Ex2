@@ -2,7 +2,7 @@ import random
 import string
 
 # Constants
-POPULATION_SIZE = 1
+POPULATION_SIZE = 3
 GENERATIONS = 1000
 MUTATION_RATE = 0.01
 
@@ -39,13 +39,14 @@ DICTIONARY, FREQ_DICT, FREQ_2_DICT, ENC = get_content()
 
 def create_population():
     population = []
-    for _ in range(POPULATION_SIZE):
+    for i in range(POPULATION_SIZE):
         individual = {}
         letters = list(string.ascii_lowercase)
         random.shuffle(letters)
         for letter in string.ascii_lowercase:
             individual[letter] = letters.pop()
         population.append(individual)
+        # print(f"Gen {i + 1} : {individual}")
     return population
 
 
@@ -97,6 +98,7 @@ def l2_loss(current, original):
     return l2_loss
 
 def fitness(individual, ciphertext):
+    print(individual)
     decode_text = get_decode_text(individual, ciphertext)
     current_cipher_freq = get_letter_frequency(decode_text)
     current_cipher_pair_freq = get_letter_pair_frequency(decode_text)
