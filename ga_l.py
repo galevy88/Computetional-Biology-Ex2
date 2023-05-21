@@ -9,6 +9,20 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 decoded_text_file = "plain.txt"
 best_solution_file = "perm.txt"
 
+def local_search(candidate, N=1):
+    alphabet = np.array(list(alpha_set))  # list of possible characters
+    for _ in range(N):
+        neighbor = candidate.deepcopy()
+        # Pick a random index
+        index = np.random.randint(len(neighbor.sequence))
+        # Replace the character at the chosen index with a different random character from the alphabet
+        new_char = np.random.choice(alphabet)
+        neighbor.sequence[index] = new_char
+        neighbor.fitness = fitness(neighbor.sequence)
+        if neighbor.fitness > candidate.fitness:
+            candidate = neighbor
+    return candidate
+
 
 
 def run_ga():
@@ -52,6 +66,7 @@ def run_ga():
 
         print(f"Generation : {it}")
 
+
         popc = []
         for _ in range(nc // 2): 
             p1 = pop[roulette_wheel_selection(probs)]
@@ -61,11 +76,15 @@ def run_ga():
 
             c1 = mutate(c1, mu)
             c2 = mutate(c2, mu)
-
+            
+            # Lamarckian
+            c1 = local_search(c1)
             c1.fitness = fitness(c1.sequence)
             if c1.fitness > bestsol.fitness:
                 bestsol = c1.deepcopy()
 
+            # Lamarckian
+            c2 = local_search(c2)
             c2.fitness = fitness(c2.sequence)
             if c2.fitness > bestsol.fitness:
                 bestsol = c2.deepcopy()
@@ -73,12 +92,12 @@ def run_ga():
             popc.append(c1)
             popc.append(c2)
 
-        pop += popc
-        pop = sorted(pop, key=lambda x: x.fitness, reverse=True) 
-        pop = pop[:npop] 
+            pop += popc
+            pop = sorted(pop, key=lambda x: x.fitness, reverse=True) 
+            pop = pop[:npop] 
 
-        bestcost[it] = bestsol.fitness
-        bestseq.append(bestsol.sequence)
+            bestcost[it] = bestsol.fitness
+            bestseq.append(bestsol.sequence)
 
 
     return bestsol.sequence, bestcost, avgcost

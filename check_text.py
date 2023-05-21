@@ -1,5 +1,32 @@
 
-true = {'a': 'y', 'b': 'k', 'c': 'i', 'd': 'n', 'e': 'h', 'f': 'o', 'g': 'x', 'h': 'j', 'i': 's', 'j': 'a', 'k': 'p', 'l': 'l', 'm': 'd', 'n': 'u', 'o': 'b', 'p': 'm', 'q': 't', 'r': 'w', 's': 'c', 't': 'q', 'u': 'r', 'v': 'e', 'w': 'v', 'x': 'g', 'y': 'e', 'z': 'f'}
+true = {
+    'a': 'y',
+    'b': 'x',
+    'c': 'i',
+    'd': 'n',
+    'e': 't',
+    'f': 'o',
+    'g': 'z',
+    'h': 'j',
+    'i': 'c',
+    'j': 'e',
+    'k': 'b',
+    'l': 'l',
+    'm': 'd',
+    'n': 'u',
+    'o': 'k',
+    'p': 'm',
+    'q': 's',
+    'r': 'v',
+    's': 'p',
+    't': 'q',
+    'u': 'r',
+    'v': 'h',
+    'w': 'w',
+    'x': 'g',
+    'y': 'a',
+    'z': 'f'
+}
 
 def get_decode_text(individual, ciphertext):
     # Translate ciphertext using individual mapping

@@ -1,31 +1,60 @@
+import numpy as np
+from collections import defaultdict
 
 
-def get_content():
-    # Load dictionary and letter frequencies
-    with open("dict.txt", "r") as f:
-        DICTIONARY = set([word.strip().lower() for word in f])
-        
-    FREQ_DICT = {}
-    FREQ_2_DICT = {}
-    
-    with open("Letter_Freq.txt", "r") as f:
-        for line in f:
-            freq, letter = line.strip().split()
-            FREQ_DICT[letter] = float(freq)
-            
-    with open("Letter2_Freq.txt") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue  # skip empty lines
-            parts = line.split()
-            if len(parts) != 2:
-                continue  # skip lines that don't have 2 parts
-            freq, pair = parts
-            FREQ_2_DICT[pair] = float(freq)
-            
-    with open('enc.txt', 'r') as f:
-        ENC = f.read()
-    return DICTIONARY, FREQ_DICT, FREQ_2_DICT, ENC
+word_set = None
+char_freqs = None
+pair_freqs = None
+char_set = np.array(list('abcdefghijklmnopqrstuvwxyz'))
+encrypted_file = "enc.txt"
+result_text_file = "deciphered.txt"
+optimal_code_file = "optimal.txt"
+ciphered_text = ""
 
-DICTIONARY, FREQ_DICT, FREQ_2_DICT, ENC = get_content()
+COUNTER = 0
+
+
+def read_words(file_path):
+    with open(file_path, 'r') as file:
+        words = set(word.strip().lower() for word in file)
+    return words
+
+
+def read_char_freqs(file_path):
+    with open(file_path, 'r') as file:
+        freqs = defaultdict(float)
+        for line in file:
+            values = line.strip().split('\t')
+            if len(values) == 2:
+                freq, char = values
+                freqs[char.lower()] = float(freq)
+    return freqs
+
+
+def read_pair_freqs(file_path):
+    with open(file_path, 'r') as file:
+        freqs = defaultdict(float)
+        for line in file:
+            values = line.strip().split('\t')
+            if len(values) == 2:
+                freq, pair = values
+                freqs[pair.lower()] = float(freq)
+    return freqs
+
+
+def read_encrypted_text(file_path):
+    with open(file_path, 'r') as file:
+        text = file.read().lower()
+    return text
+
+
+def load_data():
+    WORDS = read_words('dict.txt')
+    CHAR_FREQ = read_char_freqs('Letter_Freq.txt')
+    PAIR_FREQ = read_pair_freqs('Letter2_Freq.txt')
+    CIPHERED_TEXT = read_encrypted_text('enc.txt')
+    return WORDS, CHAR_FREQ, PAIR_FREQ, CIPHERED_TEXT
+
+
+DICTIONARY, FREQ, FREQ2, ENC = load_data()
+

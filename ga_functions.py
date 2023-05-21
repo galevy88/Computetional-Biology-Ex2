@@ -1,97 +1,66 @@
 import numpy as np
-import Globals
-import random
-import string
+from loss_functions import *
 
-def fill_miss_values(c):
-    letters = set(string.ascii_lowercase)
-    missing_letters = letters - set(c.dictonary.values())
+def create_mapping(parent, offspring, pos1, pos2):
+    mapping = {}
+    for i in range(pos1, pos2 + 1):
+        mapping[parent.sequence[i]] = offspring[i]
+    return mapping
 
-    duplicates = [v for v in c.dictonary.values() if list(c.dictonary.values()).count(v) > 1]
-    keys_with_duplicates = [k for k, v in c.dictonary.items() if v in duplicates]
+def map_values(parent, offspring, mapping, pos1, pos2):
+    for i in range(len(parent.sequence)):
+        if i < pos1 or i > pos2:
+            value = parent.sequence[i]
+            while value in mapping:
+                value = mapping[value]
+            offspring[i] = value
+    return offspring
 
-    # Fill missing letters
-    for letter in missing_letters:
-        key = keys_with_duplicates.pop(0)
-        c.dictonary[key] = letter
+def crossover(parent_a, parent_b):
+    pos1 = np.random.randint(1, len(parent_a.sequence))
+    pos2 = np.random.randint(pos1, len(parent_a.sequence))
+    offspring_a = np.empty_like(parent_a.sequence)
+    offspring_b = np.empty_like(parent_b.sequence)
+    offspring_a[pos1:pos2 + 1] = parent_a.sequence[pos1:pos2 + 1]
+    offspring_b[pos1:pos2 + 1] = parent_b.sequence[pos1:pos2 + 1]
 
-    return c
+    mapping_a = create_mapping(parent_a, offspring_b, pos1, pos2)
+    offspring_a = map_values(parent_b, offspring_a, mapping_a, pos1, pos2)
+
+    mapping_b = create_mapping(parent_b, offspring_a, pos1, pos2)
+    offspring_b = map_values(parent_a, offspring_b, mapping_b, pos1, pos2)
+
+    child_a, child_b = parent_a.deepcopy(), parent_b.deepcopy()
+    child_a.sequence, child_b.sequence = offspring_a, offspring_b
     
+    return child_a, child_b
 
-def crossover(p1, p2, update_vec):
-    c1 = p1.deepcopy()
-    c2 = p2.deepcopy()
-    alpha = [random.choice(update_vec) for _ in range(len(p1.dictonary))]
-
-    # Swap letters between p1 and p2 based on alpha
-    for i, swap in enumerate(alpha):
-        if swap == 1:
-            # Swap the corresponding letters in the dictionaries
-            key1 = list(p1.dictonary.keys())[i]
-            key2 = list(p2.dictonary.keys())[i]
-            value1 = p1.dictonary[key1]
-            value2 = p2.dictonary[key2]
-            c1.dictonary[key1] = value2
-            c2.dictonary[key2] = value1
-            
-    fill_miss_values(c1)
-    fill_miss_values(c2)
-
-    return c1, c2
-
-
-def mutate(x, mu):
-    y = x.deepcopy()
-    keys = list(y.dictonary.keys())
-    flag = np.random.rand(len(keys)) <= mu
-    ind = np.argwhere(flag).flatten()
-
-    # Iterate over the indices where mutation should occur
-    for idx in ind:
-        letter = keys[idx]
-        different_letter = random.choice([l for l in string.ascii_lowercase if l != y.dictonary[letter]])
-        y.dictonary[letter] = different_letter
-
-    fill_miss_values(y)
-    return y
-
+def mutate(original, mu):
+    copy = original.deepcopy()
+    mutation_occurrences = np.random.rand(*original.sequence.shape) <= mu
+    indices = np.argwhere(mutation_occurrences)
+    if indices.size:
+        for idx in indices:
+            swap_idx = np.random.randint(len(original.sequence))
+            copy.sequence[idx.item()], copy.sequence[swap_idx] = copy.sequence[swap_idx], copy.sequence[idx.item()]
+    return copy
 
 
 
 def roulette_wheel_selection(p):
     c = np.cumsum(p)
-    r = sum(p)*np.random.rand()
+    r = sum(p) * np.random.rand()
     ind = np.argwhere(r <= c)
     return ind[0][0]
 
-def print_top_5(bestsol, pop, it):
-        print(f"First Solution : {bestsol.dictonary}")
-        print(f"Second Solution: {pop[1].dictonary}")
-        print(f"Third  Solution: {pop[2].dictonary}")
-        print(f"Fourth Solution: {pop[3].dictonary}")
-        print(f"Fifth  Solution: {pop[4].dictonary}")
-        print("Iteration {}: First  Cost = {}".format(it, bestsol.cost))
-        print("Iteration {}: Second Cost = {}".format(it, pop[1].cost))
-        print("Iteration {}: Third  Cost = {}".format(it, pop[2].cost))
-        print("Iteration {}: Fourth Cost = {}".format(it, pop[3].cost))
-        print("Iteration {}: Fifth  Cost = {}".format(it, pop[4].cost))
-        
-def get_top_5(bestsol, pop):
-    top_5 = [bestsol] + pop[1:5]
-    return [sol.dictonary for sol in top_5], [sol.cost for sol in top_5]
 
+def create_output(solution, best_solution_file, decoded_text_file):
+    
+    with open(best_solution_file, 'w') as file:
+        for i in range(len(alpha_set)):
+            file.write(f"{alpha_set[i]} {solution[i]}\n")
 
-def remove_duplicates(objects):
-    unique_objects = []
-    seen_dictionaries = set()
-
-    for obj in objects:
-        dictionary = obj.dictonary
-        dictionary_tuple = tuple(sorted(dictionary.items()))
-
-        if dictionary_tuple not in seen_dictionaries:
-            unique_objects.append(obj)
-            seen_dictionaries.add(dictionary_tuple)
-
-    return unique_objects
+    decoded_text = translate_text(solution)
+    with open(decoded_text_file, 'w') as file:
+        file.write(decoded_text)
 
