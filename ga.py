@@ -4,12 +4,13 @@ from ypstruct import structure
 import warnings
 from ga_functions import *
 from loss_functions import *
+import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 decoded_text_file = "plain.txt"
 best_solution_file = "perm.txt"
 
-
+best_fitness_per_iteration = []
 
 def run_ga():
 
@@ -70,9 +71,12 @@ def run_ga():
             if c2.fitness > bestsol.fitness:
                 bestsol = c2.deepcopy()
 
+            
+            
             popc.append(c1)
             popc.append(c2)
 
+        best_fitness_per_iteration.append(bestsol.fitness)
         pop += popc
         pop = sorted(pop, key=lambda x: x.fitness, reverse=True) 
         pop = pop[:npop] 
@@ -87,3 +91,12 @@ if __name__ == '__main__':
     best_solution, best_fitness_array, avg_fitness_array = run_ga()
     create_output(best_solution, decoded_text_file, best_solution_file)
     print(G.COUNTER)
+    maxit = 150
+    iterations = range(1, maxit+1)
+    plt.figure(figsize=(10, 5))
+    plt.plot(iterations, best_fitness_per_iteration, label='Best Fitness per Iteration')
+    plt.xlabel('Iteration')
+    plt.ylabel('Best Fitness')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
