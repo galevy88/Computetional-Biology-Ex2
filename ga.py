@@ -12,12 +12,12 @@ best_solution_file = "perm.txt"
 
 best_fitness_per_iteration = []
 
-def run_ga():
+def run_ga(beta_param):
 
     # Parameters
     maxit = 150
     npop = 50
-    beta = 1
+    beta = beta_param
     pc = 2
     nc = int(np.round(pc * npop / 2) * 2)  
     mu = 0.05
@@ -88,7 +88,20 @@ def run_ga():
     return bestsol.sequence, bestcost, avgcost
 
 if __name__ == '__main__':
-    best_solution, best_fitness_array, avg_fitness_array = run_ga()
+    print("Please select a mode:\nRegular - 1\nDarwinian - 2\nLamarckian - 3")
+    user_input = int(input("Your selection: "))
+    
+    if user_input == 1:
+        beta = 1
+    elif user_input == 2:
+        beta = 100
+    elif user_input == 3:
+        beta = 0
+    else:
+        print("Invalid selection. Defaulting to Regular mode.")
+        beta = 1
+
+    best_solution, best_fitness_array, avg_fitness_array = run_ga(beta)
     create_output(best_solution, decoded_text_file, best_solution_file)
     print(G.COUNTER)
     maxit = 150

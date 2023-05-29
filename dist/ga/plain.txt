@@ -4,7 +4,7 @@ c i
 d n
 e t
 f o
-g z
+g k
 h j
 i c
 j e
@@ -12,7 +12,7 @@ k b
 l l
 m d
 n u
-o k
+o z
 p m
 q s
 r v
