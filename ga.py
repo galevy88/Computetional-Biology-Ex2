@@ -1,4 +1,3 @@
-
 import numpy as np
 from ypstruct import structure 
 import warnings
@@ -7,20 +6,23 @@ from loss_functions import *
 import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-decoded_text_file = "plain.txt"
-best_solution_file = "perm.txt"
+decoded_text_file = "perm.txt"
+best_solution_file = "plain.txt"
 
 best_fitness_per_iteration = []
 
 def run_ga(beta_param):
 
     # Parameters
-    maxit = 150
+    maxit = 300
     npop = 50
     beta = beta_param
     pc = 2
     nc = int(np.round(pc * npop / 2) * 2)  
     mu = 0.05
+    convergence_counter = 20  # Number of iterations for convergence condition
+    converged = 0  # Initialize convergence count
+    last_best_fitness = None  # Initialize the last best fitness to None
 
     empty_individual = structure()
     empty_individual.sequence = None
@@ -70,8 +72,6 @@ def run_ga(beta_param):
             c2.fitness = fitness(c2.sequence)
             if c2.fitness > bestsol.fitness:
                 bestsol = c2.deepcopy()
-
-            
             
             popc.append(c1)
             popc.append(c2)
@@ -84,6 +84,17 @@ def run_ga(beta_param):
         bestcost[it] = bestsol.fitness
         bestseq.append(bestsol.sequence)
 
+        # Convergence condition
+        if bestsol.fitness == last_best_fitness:
+            converged += 1
+        else:
+            converged = 0
+
+        last_best_fitness = bestsol.fitness
+
+        if converged >= convergence_counter:
+            print(f"Convergence after {it} iterations!")
+            break
 
     return bestsol.sequence, bestcost, avgcost
 
@@ -103,9 +114,11 @@ if __name__ == '__main__':
 
     best_solution, best_fitness_array, avg_fitness_array = run_ga(beta)
     create_output(best_solution, decoded_text_file, best_solution_file)
-    print(G.COUNTER)
-    maxit = 150
-    iterations = range(1, maxit+1)
+    print(f"Total number of fitness calls: {G.COUNTER}")
+    
+    # Change this line to match the length of `best_fitness_per_iteration`
+    iterations = range(1, len(best_fitness_per_iteration) + 1)
+
     plt.figure(figsize=(10, 5))
     plt.plot(iterations, best_fitness_per_iteration, label='Best Fitness per Iteration')
     plt.xlabel('Iteration')
@@ -113,3 +126,4 @@ if __name__ == '__main__':
     plt.legend()
     plt.grid(True)
     plt.show()
+

@@ -1,14 +1,13 @@
 import numpy as np
 from collections import defaultdict
-
+import tkinter as tk
+from tkinter import filedialog
+import sys
 
 word_set = None
 char_freqs = None
 pair_freqs = None
 char_set = np.array(list('abcdefghijklmnopqrstuvwxyz'))
-encrypted_file = "enc.txt"
-result_text_file = "deciphered.txt"
-optimal_code_file = "optimal.txt"
 ciphered_text = ""
 
 COUNTER = 0
@@ -48,13 +47,36 @@ def read_encrypted_text(file_path):
     return text
 
 
+def ask_for_file():
+    print("Please select your encrypted .txt file")
+    root = tk.Tk()
+    root.withdraw()
+    file_path = filedialog.askopenfilename()
+
+    if not file_path:
+        print("No file selected. Please select a .txt file.")
+        sys.exit()
+
+    if not file_path.endswith('.txt'):
+        print("Invalid file type. Please select a .txt file.")
+        sys.exit()
+    
+    return file_path
+
+
 def load_data():
-    WORDS = read_words('dict.txt')
-    CHAR_FREQ = read_char_freqs('Letter_Freq.txt')
-    PAIR_FREQ = read_pair_freqs('Letter2_Freq.txt')
-    CIPHERED_TEXT = read_encrypted_text('enc.txt')
-    return WORDS, CHAR_FREQ, PAIR_FREQ, CIPHERED_TEXT
+    try:
+        encrypted_file_path = ask_for_file()
+        
+        WORDS = read_words("dict.txt")
+        CHAR_FREQ = read_char_freqs("Letter_Freq.txt")
+        PAIR_FREQ = read_pair_freqs("Letter2_Freq.txt")
+        CIPHERED_TEXT = read_encrypted_text(encrypted_file_path)
+        return WORDS, CHAR_FREQ, PAIR_FREQ, CIPHERED_TEXT
+
+    except Exception as e:
+        print(str(e))
+        return None, None, None, None
 
 
 DICTIONARY, FREQ, FREQ2, ENC = load_data()
-

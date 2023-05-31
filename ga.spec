@@ -8,7 +8,7 @@ a = Analysis(
     ['ga.py'],
     pathex=[],
     binaries=[],
-    datas=[('dict.txt', '.'), ('enc.txt', '.'), ('Letter_Freq.txt', '.'), ('Letter2_Freq.txt', '.')],
+    datas=[('dict.txt', '.'), ('Letter_Freq.txt', '.'), ('Letter2_Freq.txt', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
